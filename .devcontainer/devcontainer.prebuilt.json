@@ -1,0 +1,21 @@
+{
+  "name": "DevContainer Template (Pre-built)",
+  "image": "ghcr.io/alex-80/devcontainer-template:latest",
+  "features": {},
+  "remoteUser": "developer",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      }
+    }
+  },
+  "postCreateCommand": "echo 'Welcome to the pre-built development container!'",
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind"
+}
