@@ -24,6 +24,7 @@
       "extensions": [
         "esbenp.prettier-vscode",
         "EditorConfig.EditorConfig",
+        "ms-azuretools.vscode-docker",
         "redhat.vscode-yaml"
       ],
       "settings": {
