@@ -28,7 +28,7 @@
         "redhat.vscode-yaml"
       ],
       "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
+        "terminal.integrated.shell.linux": "/bin/zsh"
       }
     }
   }
