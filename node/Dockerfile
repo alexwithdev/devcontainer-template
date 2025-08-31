@@ -41,12 +41,12 @@ RUN mkdir -p /home/${USERNAME}/.npm-global && \
 # 切换回指定用户
 USER ${USERNAME}
 
-# 全局安装pnpm
-RUN npm i -g pnpm
-
 # 配置npm使用用户目录
 ENV NPM_CONFIG_PREFIX=/home/${USERNAME}/.npm-global
 ENV PATH="/home/${USERNAME}/.npm-global/bin:${PATH}"
+
+# 全局安装pnpm
+RUN npm i -g pnpm
 
 # 默认启动命令
 CMD [ "zsh" ]
