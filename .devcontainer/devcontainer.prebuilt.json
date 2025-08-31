@@ -1,6 +1,6 @@
 {
   "name": "DevContainer Template (Pre-built)",
-  "image": "ghcr.io/alex-80/devcontainer-template:latest",
+  "image": "ghcr.io/alexwithdev/devcontainer-template/base:latest",
   "features": {},
   "remoteUser": "developer",
   "customizations": {
@@ -11,7 +11,7 @@
         "redhat.vscode-yaml"
       ],
       "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
+        "terminal.integrated.shell.linux": "/bin/zsh"
       }
     }
   },
