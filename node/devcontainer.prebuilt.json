@@ -1,0 +1,23 @@
+{
+  "name": "Node.js & TypeScript (Pre-built)",
+  "image": "ghcr.io/alexwithdev/devcontainer-template/node:latest",
+  "features": {},
+  "remoteUser": "developer",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+        "mikestead.dotenv",
+        "ms-vscode.js-debug"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/zsh"
+      }
+    }
+  },
+  "postCreateCommand": "echo 'Welcome to the pre-built development container!'",
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind"
+}
