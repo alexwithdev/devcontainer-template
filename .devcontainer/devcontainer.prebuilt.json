@@ -16,6 +16,6 @@
     }
   },
   "postCreateCommand": "echo 'Welcome to the pre-built development container!'",
-  "workspaceFolder": "/workspace",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind"
+  "workspaceFolder": "/workspaces",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind"
 }
