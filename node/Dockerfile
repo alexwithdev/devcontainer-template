@@ -48,5 +48,9 @@ ENV PATH="/home/${USERNAME}/.npm-global/bin:${PATH}"
 # 全局安装pnpm
 RUN npm i -g pnpm
 
+# 配置pnpm store目录
+RUN mkdir -p /home/${USERNAME}/.pnpm-store && \
+  pnpm config set store-dir /home/${USERNAME}/.pnpm-store
+
 # 默认启动命令
 CMD [ "zsh" ]
