@@ -13,7 +13,7 @@ ARG USERNAME=developer
 # - 基础设施：时区数据、证书、SSH 客户端
 RUN apk add --no-cache \
   zsh zsh-autosuggestions zsh-completions zsh-syntax-highlighting \
-  git git-lfs \
+  git git-lfs git-daemon \
   htop strace curl wget neovim nano \
   tzdata ca-certificates openssh-client
 
