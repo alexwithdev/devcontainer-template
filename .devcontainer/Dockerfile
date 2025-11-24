@@ -15,7 +15,8 @@ RUN apk add --no-cache \
   zsh zsh-autosuggestions zsh-completions zsh-syntax-highlighting \
   git git-lfs git-daemon \
   htop strace curl wget neovim nano \
-  tzdata ca-certificates openssh-client
+  tzdata ca-certificates openssh-client \
+  socat
 
 # 创建非root用户
 RUN addgroup -g ${USER_GID} ${USERNAME} && \
