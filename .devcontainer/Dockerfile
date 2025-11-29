@@ -52,6 +52,12 @@ RUN git config --global init.defaultBranch main && \
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# 设置默认编辑器
+COPY scripts/default-text-editor /usr/local/bin/default-text-editor
+RUN chmod +x /usr/local/bin/default-text-editor
+ENV VISUAL=default-text-editor
+ENV EDITOR=default-text-editor
+
 # 切换到非root用户
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
