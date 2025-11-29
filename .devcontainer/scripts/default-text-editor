@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# 检查 code 命令是否存在
+if ! command -v code &> /dev/null; then
+  vi "$@"
+  exit 0
+fi
+
+exec code --wait "$@"
