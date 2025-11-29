@@ -22,6 +22,20 @@ RUN apk add --no-cache \
 RUN addgroup -g ${USER_GID} ${USERNAME} && \
   adduser -D -u ${USER_UID} -G ${USERNAME} -s /bin/zsh ${USERNAME}
 
+# 设置时区
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 设置默认编辑器
+COPY scripts/default-text-editor /usr/local/bin/default-text-editor
+RUN chmod +x /usr/local/bin/default-text-editor
+ENV VISUAL=default-text-editor
+ENV EDITOR=default-text-editor
+
+# 切换到非root用户
+USER ${USERNAME}
+WORKDIR /home/${USERNAME}
+
 # 配置 zsh 插件（Alpine 包管理器版本）
 RUN echo "source /usr/share/zsh/plugins/zsh-completions/zsh-completions.plugin.zsh" >> /home/${USERNAME}/.zshrc && \
   echo "autoload -U compinit && compinit -C" >> /home/${USERNAME}/.zshrc && \
@@ -31,8 +45,6 @@ RUN echo "source /usr/share/zsh/plugins/zsh-completions/zsh-completions.plugin.z
 # 安装和配置 Oh My Zsh
 RUN wget https://github.com/ohmyzsh/ohmyzsh/raw/master/tools/install.sh && \
   sh install.sh --unattended && \
-  mv /root/.oh-my-zsh /home/${USERNAME}/.oh-my-zsh && \
-  chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.oh-my-zsh && \
   echo "export ZSH=/home/${USERNAME}/.oh-my-zsh" >> /home/${USERNAME}/.zshrc && \
   echo "ZSH_THEME=\"robbyrussell\"" >> /home/${USERNAME}/.zshrc && \
   echo "plugins=(git docker z)" >> /home/${USERNAME}/.zshrc && \
@@ -47,20 +59,6 @@ RUN git config --global init.defaultBranch main && \
   git config --global core.autocrlf input && \
   git config --global pull.rebase false && \
   git config --global credential.helper store
-
-# 设置时区
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# 设置默认编辑器
-COPY scripts/default-text-editor /usr/local/bin/default-text-editor
-RUN chmod +x /usr/local/bin/default-text-editor
-ENV VISUAL=default-text-editor
-ENV EDITOR=default-text-editor
-
-# 切换到非root用户
-USER ${USERNAME}
-WORKDIR /home/${USERNAME}
 
 # 默认启动命令
 CMD [ "zsh" ]
