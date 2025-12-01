@@ -1,0 +1,20 @@
+{
+  "name": "Python 3",
+  "image": "ghcr.io/alexwithdev/devcontainer-template/python:latest",
+  "features": {},
+  "remoteUser": "developer",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+        "ms-python.debugpy",
+        "ms-python.vscode-pylance",
+        "ms-python.python"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/zsh"
+      }
+    }
+  }
+}
