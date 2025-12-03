@@ -12,5 +12,7 @@ RUN apk add --no-cache \
 # 切换回指定用户
 USER ${USERNAME}
 
+ENV ZSH_PLUGINS_APPEND="python pip"
+
 # 默认启动命令
 CMD [ "zsh" ]

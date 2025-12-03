@@ -36,6 +36,8 @@ ENV EDITOR=default-text-editor
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
 
+ENV ZSH_PLUGIN_LIST="git"
+
 # 配置 zsh 插件（Alpine 包管理器版本）
 RUN echo "source /usr/share/zsh/plugins/zsh-completions/zsh-completions.plugin.zsh" >> /home/${USERNAME}/.zshrc && \
   echo "autoload -U compinit && compinit -C" >> /home/${USERNAME}/.zshrc && \
@@ -44,10 +46,10 @@ RUN echo "source /usr/share/zsh/plugins/zsh-completions/zsh-completions.plugin.z
 
 # 安装和配置 Oh My Zsh
 RUN wget https://github.com/ohmyzsh/ohmyzsh/raw/master/tools/install.sh && \
-  sh install.sh --unattended && \
+  sh install.sh --unattended --keep-zshrc && \
   echo "export ZSH=/home/${USERNAME}/.oh-my-zsh" >> /home/${USERNAME}/.zshrc && \
   echo "ZSH_THEME=\"robbyrussell\"" >> /home/${USERNAME}/.zshrc && \
-  echo "plugins=(git docker z)" >> /home/${USERNAME}/.zshrc && \
+  echo "plugins=(\${=ZSH_PLUGIN_LIST} \${=ZSH_PLUGINS_APPEND})" >> /home/${USERNAME}/.zshrc && \
   echo "DISABLE_AUTO_UPDATE=\"true\"" >> /home/${USERNAME}/.zshrc && \
   echo "DISABLE_UPDATE_PROMPT=\"true\"" >> /home/${USERNAME}/.zshrc && \
   echo "source \$ZSH/oh-my-zsh.sh" >> /home/${USERNAME}/.zshrc && \

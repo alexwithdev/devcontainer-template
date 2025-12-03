@@ -15,5 +15,7 @@ USER ${USERNAME}
 RUN go install github.com/go-delve/delve/cmd/dlv@v1.25.2 \
     && echo 'export PATH="$PATH:$(go env GOPATH)/bin"' >> ~/.zshrc
 
+ENV ZSH_PLUGINS_APPEND="golang"
+
 # 默认启动命令
 CMD [ "zsh" ]

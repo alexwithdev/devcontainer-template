@@ -52,5 +52,7 @@ RUN npm i -g pnpm
 RUN mkdir -p /home/${USERNAME}/.pnpm-store && \
   pnpm config set store-dir /home/${USERNAME}/.pnpm-store
 
+ENV ZSH_PLUGINS_APPEND="node npm"
+
 # 默认启动命令
 CMD [ "zsh" ]
