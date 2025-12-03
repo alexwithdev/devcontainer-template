@@ -1,0 +1,18 @@
+{
+  "name": "Go",
+  "image": "ghcr.io/alexwithdev/devcontainer-template/go:latest",
+  "features": {},
+  "remoteUser": "developer",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+        "golang.go"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/zsh"
+      }
+    }
+  }
+}
