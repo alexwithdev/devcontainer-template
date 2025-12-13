@@ -1,5 +1,5 @@
 # 多阶段构建 - 第一阶段从node:alpine提取Node.js
-FROM node:20.18.1-alpine AS node-source
+FROM node:22.21.1-alpine AS node-source
 
 # 第二阶段 - 使用自定义基础镜像
 FROM ghcr.io/alexwithdev/devcontainer-template/base:latest
