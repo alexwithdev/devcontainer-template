@@ -16,7 +16,8 @@ RUN apk add --no-cache \
   git git-lfs git-daemon \
   htop strace curl wget neovim nano \
   tzdata ca-certificates openssh-client openssl \
-  socat
+  socat \
+  imagemagick
 
 # 创建非root用户
 RUN addgroup -g ${USER_GID} ${USERNAME} && \
