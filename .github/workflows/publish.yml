@@ -12,19 +12,101 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-base-and-push:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      base-matrix: ${{ steps.set-matrix.outputs.base-matrix }}
+      lang-matrix: ${{ steps.set-matrix.outputs.lang-matrix }}
+      build-base: ${{ steps.set-matrix.outputs.build-base }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: github.ref_type != 'tag'
+        with:
+          filters: |
+            base:
+              - '.devcontainer/**'
+            node:
+              - 'node/**'
+            python:
+              - 'python/**'
+            go:
+              - 'go/**'
+            workflow:
+              - '.github/workflows/**'
+
+      - name: Set build matrix
+        id: set-matrix
+        run: |
+          IS_TAG="${{ github.ref_type == 'tag' }}"
+          BASE_CHANGED="${{ steps.filter.outputs.base }}"
+          NODE_CHANGED="${{ steps.filter.outputs.node }}"
+          PYTHON_CHANGED="${{ steps.filter.outputs.python }}"
+          GO_CHANGED="${{ steps.filter.outputs.go }}"
+          WORKFLOW_CHANGED="${{ steps.filter.outputs.workflow }}"
+
+          # Determine if we should build everything
+          if [[ "$IS_TAG" == "true" ]] || [[ "$BASE_CHANGED" == "true" ]] || [[ "$WORKFLOW_CHANGED" == "true" ]]; then
+            BUILD_ALL=true
+          else
+            BUILD_ALL=false
+          fi
+
+          # Generate base matrix
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$BASE_CHANGED" == "true" ]]; then
+            BASE_MATRIX='{"include":[{"name":"base","dockerfile":".devcontainer/Dockerfile","context":".devcontainer","description":"Base Alpine development container"}]}'
+            BUILD_BASE=true
+          else
+            BASE_MATRIX='{"include":[]}'
+            BUILD_BASE=false
+          fi
+
+          # Generate language matrix
+          LANG_ITEMS=()
+
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$NODE_CHANGED" == "true" ]]; then
+            LANG_ITEMS+=('"{\"name\":\"node\",\"dockerfile\":\"node/Dockerfile\",\"context\":\"node\",\"description\":\"Node.js development container\"}"')
+          fi
+
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$PYTHON_CHANGED" == "true" ]]; then
+            LANG_ITEMS+=('"{\"name\":\"python\",\"dockerfile\":\"python/Dockerfile\",\"context\":\"python\",\"description\":\"Python development container\"}"')
+          fi
+
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$GO_CHANGED" == "true" ]]; then
+            LANG_ITEMS+=('"{\"name\":\"go\",\"dockerfile\":\"go/Dockerfile\",\"context\":\"go\",\"description\":\"Go development container\"}"')
+          fi
+
+          # Build language matrix JSON
+          if [ ${#LANG_ITEMS[@]} -eq 0 ]; then
+            LANG_MATRIX='{"include":[]}'
+          else
+            # Join array with commas
+            JOINED=$(IFS=,; echo "${LANG_ITEMS[*]}")
+            LANG_MATRIX="{\"include\":[$JOINED]}"
+          fi
+
+          # Set outputs
+          echo "base-matrix=$BASE_MATRIX" >> $GITHUB_OUTPUT
+          echo "lang-matrix=$LANG_MATRIX" >> $GITHUB_OUTPUT
+          echo "build-base=$BUILD_BASE" >> $GITHUB_OUTPUT
+
+          # Debug output
+          echo "::notice::Base Matrix: $BASE_MATRIX"
+          echo "::notice::Lang Matrix: $LANG_MATRIX"
+          echo "::notice::Build Base: $BUILD_BASE"
+
+  build-base:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.build-base == 'true'
     permissions:
       contents: read
       packages: write
       id-token: write
       attestations: write
     strategy:
-      matrix:
-        include:
-          - name: base
-            dockerfile: .devcontainer/Dockerfile
-            context: .devcontainer
-            description: "Base Alpine development container"
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.base-matrix) }}
     uses: ./.github/workflows/build-image.yml
     with:
       name: ${{ matrix.name }}
@@ -35,27 +117,18 @@ jobs:
       image_name: ${{ github.repository }}
 
   build-and-push:
-    needs: build-base-and-push
+    needs: [detect-changes, build-base]
+    if: |
+      always() &&
+      needs.detect-changes.result == 'success' &&
+      (needs.build-base.result == 'success' || needs.build-base.result == 'skipped')
     permissions:
       contents: read
       packages: write
       id-token: write
       attestations: write
     strategy:
-      matrix:
-        include:
-          - name: node
-            dockerfile: node/Dockerfile
-            context: node
-            description: "Node.js development container"
-          - name: python
-            dockerfile: python/Dockerfile
-            context: python
-            description: "Python development container"
-          - name: go
-            dockerfile: go/Dockerfile
-            context: go
-            description: "Go development container"
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.lang-matrix) }}
     uses: ./.github/workflows/build-image.yml
     with:
       name: ${{ matrix.name }}
