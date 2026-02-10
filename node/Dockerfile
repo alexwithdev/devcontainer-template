@@ -6,7 +6,6 @@ FROM ghcr.io/alexwithdev/devcontainer-template/base:latest
 
 # 设置用户参数，默认为当前用户
 ARG USERNAME=developer
-ARG NODE_VERSION=20.18.1
 
 # 切换到 root 用户进行安装
 USER root
