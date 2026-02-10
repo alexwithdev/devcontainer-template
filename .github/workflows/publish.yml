@@ -67,15 +67,15 @@ jobs:
           LANG_ITEMS=()
 
           if [[ "$BUILD_ALL" == "true" ]] || [[ "$NODE_CHANGED" == "true" ]]; then
-            LANG_ITEMS+=('"{\"name\":\"node\",\"dockerfile\":\"node/Dockerfile\",\"context\":\"node\",\"description\":\"Node.js development container\"}"')
+            LANG_ITEMS+=('{"name":"node","dockerfile":"node/Dockerfile","context":"node","description":"Node.js development container"}')
           fi
 
           if [[ "$BUILD_ALL" == "true" ]] || [[ "$PYTHON_CHANGED" == "true" ]]; then
-            LANG_ITEMS+=('"{\"name\":\"python\",\"dockerfile\":\"python/Dockerfile\",\"context\":\"python\",\"description\":\"Python development container\"}"')
+            LANG_ITEMS+=('{"name":"python","dockerfile":"python/Dockerfile","context":"python","description":"Python development container"}')
           fi
 
           if [[ "$BUILD_ALL" == "true" ]] || [[ "$GO_CHANGED" == "true" ]]; then
-            LANG_ITEMS+=('"{\"name\":\"go\",\"dockerfile\":\"go/Dockerfile\",\"context\":\"go\",\"description\":\"Go development container\"}"')
+            LANG_ITEMS+=('{"name":"go","dockerfile":"go/Dockerfile","context":"go","description":"Go development container"}')
           fi
 
           # Build language matrix JSON
