@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# 取消注释下面这行可以进行调试
+# export DEBUG=1
+if [ -n "$DEBUG" ]; then
+  set -x
+  exec >> ${HOME}/.vnc/xstartup.log 2>&1
+fi
+
+# 设置一些基本的环境变量
+export XKL_XMODMAP_DISABLE=1
+export XDG_CURRENT_DESKTOP="Fluxbox"
+export XDG_SESSION_TYPE=x11
+
+ibus-daemon -d -x &   # 启动ibus后台服务
+
+# 启动 Fluxbox 窗口管理器 (在后台运行)
+fluxbox &
+
+# 等待窗口管理器稍微稳定一点 (可选)
+sleep 1
+
+if [ -v EXECUTABLE ]; then
+  echo "正在启动: ${EXECUTABLE}"
+  eval "${EXECUTABLE} &" # 在后台运行
+fi
+
+# 你也可以在这里启动其他需要的程序，例如一个终端
+# xterm &
+
+# 保持脚本运行，直到主应用退出 (或者让 fluxbox 保持会话)
+wait

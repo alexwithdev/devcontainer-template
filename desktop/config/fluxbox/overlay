@@ -1,0 +1,29 @@
+# 使用 Noto Sans CJK SC（最完整的中文支持）
+# 或者使用 WenQuanYi Zen Hei
+
+# 菜单标题
+menu.title.font: Noto Sans CJK SC Regular-11:bold
+
+# 菜单项（包括 Configure 和 Workspace List 的子项）
+menu.frame.font: Noto Sans CJK SC Regular-10
+
+# 高亮菜单项
+menu.hilite.font: Noto Sans CJK SC Regular-10:bold
+
+# 工具栏工作区名称
+toolbar.workspace.font: Noto Sans CJK SC Regular-10:bold
+
+# 工具栏时钟
+toolbar.clock.font: Noto Sans CJK SC Regular-10
+
+# 工具栏 Iconbar
+toolbar.iconbar.focused.font: Noto Sans CJK SC Regular-9
+toolbar.iconbar.unfocused.font: Noto Sans CJK SC Regular-9
+
+# 窗口字体
+window.font: Noto Sans CJK SC Regular-10
+window.label.focus.font: Noto Sans CJK SC Regular-10
+window.label.unfocus.font: Noto Sans CJK SC Regular-9
+
+# 通配符（作为最终回退）
+*font: Noto Sans CJK SC Regular-10
