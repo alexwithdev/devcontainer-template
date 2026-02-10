@@ -34,6 +34,8 @@ jobs:
               - 'python/**'
             go:
               - 'go/**'
+            desktop:
+              - 'desktop/**'
             workflow:
               - '.github/workflows/**'
 
@@ -45,6 +47,7 @@ jobs:
           NODE_CHANGED="${{ steps.filter.outputs.node }}"
           PYTHON_CHANGED="${{ steps.filter.outputs.python }}"
           GO_CHANGED="${{ steps.filter.outputs.go }}"
+          DESKTOP_CHANGED="${{ steps.filter.outputs.desktop }}"
           WORKFLOW_CHANGED="${{ steps.filter.outputs.workflow }}"
 
           # Determine if we should build everything
@@ -76,6 +79,10 @@ jobs:
 
           if [[ "$BUILD_ALL" == "true" ]] || [[ "$GO_CHANGED" == "true" ]]; then
             LANG_ITEMS+=('{"name":"go","dockerfile":"go/Dockerfile","context":"go","description":"Go development container"}')
+          fi
+
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$DESKTOP_CHANGED" == "true" ]]; then
+            LANG_ITEMS+=('{"name":"desktop","dockerfile":"desktop/Dockerfile","context":"desktop","description":"Desktop development container with VNC"}')
           fi
 
           # Build language matrix JSON
