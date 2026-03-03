@@ -1,0 +1,23 @@
+{
+  "name": "Desktop (Pre-built)",
+  "image": "ghcr.io/alexwithdev/devcontainer-template/desktop:latest",
+  "features": {},
+  "remoteUser": "developer",
+  "containerEnv": {
+    "VNC_PASSWORD": "password"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+        "ms-vscode-remote.remote-containers",
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/zsh"
+      }
+    }
+  }
+}

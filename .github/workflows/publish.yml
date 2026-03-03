@@ -16,8 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       base-matrix: ${{ steps.set-matrix.outputs.base-matrix }}
+      ubuntu-matrix: ${{ steps.set-matrix.outputs.ubuntu-matrix }}
       lang-matrix: ${{ steps.set-matrix.outputs.lang-matrix }}
       build-base: ${{ steps.set-matrix.outputs.build-base }}
+      build-ubuntu: ${{ steps.set-matrix.outputs.build-ubuntu }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,15 +29,19 @@ jobs:
         with:
           filters: |
             base:
-              - '.devcontainer/**'
+              - 'src/templates/base/**'
+            ubuntu:
+              - 'src/templates/ubuntu/**'
             node:
-              - 'node/**'
+              - 'src/templates/node/**'
             python:
-              - 'python/**'
+              - 'src/templates/python/**'
             go:
-              - 'go/**'
+              - 'src/templates/go/**'
             desktop:
-              - 'desktop/**'
+              - 'src/templates/desktop/**'
+            android:
+              - 'src/templates/android/**'
             workflow:
               - '.github/workflows/**'
 
@@ -44,45 +50,69 @@ jobs:
         run: |
           IS_TAG="${{ github.ref_type == 'tag' }}"
           BASE_CHANGED="${{ steps.filter.outputs.base }}"
+          UBUNTU_CHANGED="${{ steps.filter.outputs.ubuntu }}"
           NODE_CHANGED="${{ steps.filter.outputs.node }}"
           PYTHON_CHANGED="${{ steps.filter.outputs.python }}"
           GO_CHANGED="${{ steps.filter.outputs.go }}"
           DESKTOP_CHANGED="${{ steps.filter.outputs.desktop }}"
+          ANDROID_CHANGED="${{ steps.filter.outputs.android }}"
           WORKFLOW_CHANGED="${{ steps.filter.outputs.workflow }}"
 
           # Determine if we should build everything
-          if [[ "$IS_TAG" == "true" ]] || [[ "$BASE_CHANGED" == "true" ]] || [[ "$WORKFLOW_CHANGED" == "true" ]]; then
+          if [[ "$IS_TAG" == "true" ]] || [[ "$WORKFLOW_CHANGED" == "true" ]]; then
             BUILD_ALL=true
           else
             BUILD_ALL=false
           fi
 
-          # Generate base matrix
+          # Determine base/ubuntu image build independently
           if [[ "$BUILD_ALL" == "true" ]] || [[ "$BASE_CHANGED" == "true" ]]; then
-            BASE_MATRIX='{"include":[{"name":"base","dockerfile":".devcontainer/Dockerfile","context":".devcontainer","description":"Base Alpine development container"}]}'
             BUILD_BASE=true
           else
-            BASE_MATRIX='{"include":[]}'
             BUILD_BASE=false
+          fi
+
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$UBUNTU_CHANGED" == "true" ]]; then
+            BUILD_UBUNTU=true
+          else
+            BUILD_UBUNTU=false
+          fi
+
+          # Generate base matrix
+          if [[ "$BUILD_BASE" == "true" ]]; then
+            BASE_MATRIX='{"include":[{"name":"base","dockerfile":"src/templates/base/Dockerfile","context":"src/templates/base","description":"Base Alpine development container"}]}'
+          else
+            BASE_MATRIX='{"include":[]}'
+          fi
+
+          # Generate ubuntu matrix
+          if [[ "$BUILD_UBUNTU" == "true" ]]; then
+            UBUNTU_MATRIX='{"include":[{"name":"ubuntu","dockerfile":"src/templates/ubuntu/Dockerfile","context":"src/templates/ubuntu","description":"Base Ubuntu development container"}]}'
+          else
+            UBUNTU_MATRIX='{"include":[]}'
           fi
 
           # Generate language matrix
           LANG_ITEMS=()
 
-          if [[ "$BUILD_ALL" == "true" ]] || [[ "$NODE_CHANGED" == "true" ]]; then
-            LANG_ITEMS+=('{"name":"node","dockerfile":"node/Dockerfile","context":"node","description":"Node.js development container"}')
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$BASE_CHANGED" == "true" ]] || [[ "$NODE_CHANGED" == "true" ]]; then
+            LANG_ITEMS+=('{"name":"node","dockerfile":"src/templates/node/Dockerfile","context":"src/templates/node","description":"Node.js development container"}')
           fi
 
-          if [[ "$BUILD_ALL" == "true" ]] || [[ "$PYTHON_CHANGED" == "true" ]]; then
-            LANG_ITEMS+=('{"name":"python","dockerfile":"python/Dockerfile","context":"python","description":"Python development container"}')
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$BASE_CHANGED" == "true" ]] || [[ "$PYTHON_CHANGED" == "true" ]]; then
+            LANG_ITEMS+=('{"name":"python","dockerfile":"src/templates/python/Dockerfile","context":"src/templates/python","description":"Python development container"}')
           fi
 
-          if [[ "$BUILD_ALL" == "true" ]] || [[ "$GO_CHANGED" == "true" ]]; then
-            LANG_ITEMS+=('{"name":"go","dockerfile":"go/Dockerfile","context":"go","description":"Go development container"}')
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$BASE_CHANGED" == "true" ]] || [[ "$GO_CHANGED" == "true" ]]; then
+            LANG_ITEMS+=('{"name":"go","dockerfile":"src/templates/go/Dockerfile","context":"src/templates/go","description":"Go development container"}')
           fi
 
-          if [[ "$BUILD_ALL" == "true" ]] || [[ "$DESKTOP_CHANGED" == "true" ]]; then
-            LANG_ITEMS+=('{"name":"desktop","dockerfile":"desktop/Dockerfile","context":"desktop","description":"Desktop development container with VNC"}')
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$UBUNTU_CHANGED" == "true" ]] || [[ "$DESKTOP_CHANGED" == "true" ]]; then
+            LANG_ITEMS+=('{"name":"desktop","dockerfile":"src/templates/desktop/Dockerfile","context":"src/templates/desktop","description":"Desktop development container with VNC"}')
+          fi
+
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$UBUNTU_CHANGED" == "true" ]] || [[ "$ANDROID_CHANGED" == "true" ]]; then
+            LANG_ITEMS+=('{"name":"android","dockerfile":"src/templates/android/Dockerfile","context":"src/templates/android","description":"Android development container with Android Studio"}')
           fi
 
           # Build language matrix JSON
@@ -96,13 +126,17 @@ jobs:
 
           # Set outputs
           echo "base-matrix=$BASE_MATRIX" >> $GITHUB_OUTPUT
+          echo "ubuntu-matrix=$UBUNTU_MATRIX" >> $GITHUB_OUTPUT
           echo "lang-matrix=$LANG_MATRIX" >> $GITHUB_OUTPUT
           echo "build-base=$BUILD_BASE" >> $GITHUB_OUTPUT
+          echo "build-ubuntu=$BUILD_UBUNTU" >> $GITHUB_OUTPUT
 
           # Debug output
           echo "::notice::Base Matrix: $BASE_MATRIX"
+          echo "::notice::Ubuntu Matrix: $UBUNTU_MATRIX"
           echo "::notice::Lang Matrix: $LANG_MATRIX"
           echo "::notice::Build Base: $BUILD_BASE"
+          echo "::notice::Build Ubuntu: $BUILD_UBUNTU"
 
   build-base:
     needs: detect-changes
@@ -123,12 +157,32 @@ jobs:
       registry: ghcr.io
       image_name: ${{ github.repository }}
 
+  build-ubuntu:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.build-ubuntu == 'true'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    strategy:
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.ubuntu-matrix) }}
+    uses: ./.github/workflows/build-image.yml
+    with:
+      name: ${{ matrix.name }}
+      dockerfile: ${{ matrix.dockerfile }}
+      context: ${{ matrix.context }}
+      description: ${{ matrix.description }}
+      registry: ghcr.io
+      image_name: ${{ github.repository }}
+
   build-and-push:
-    needs: [detect-changes, build-base]
+    needs: [detect-changes, build-base, build-ubuntu]
     if: |
       always() &&
       needs.detect-changes.result == 'success' &&
-      (needs.build-base.result == 'success' || needs.build-base.result == 'skipped')
+      (needs.build-base.result == 'success' || needs.build-base.result == 'skipped') &&
+      (needs.build-ubuntu.result == 'success' || needs.build-ubuntu.result == 'skipped')
     permissions:
       contents: read
       packages: write

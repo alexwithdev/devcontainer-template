@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if ! command -v code >/dev/null 2>&1; then
+  vi "$@"
+  exit 0
+fi
+
+exec code --wait "$@"

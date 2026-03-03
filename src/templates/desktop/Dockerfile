@@ -1,56 +1,43 @@
-# 使用 Ubuntu LTS 版本作为基础镜像
-FROM ubuntu:22.04
+# 基于 Ubuntu 基础模板
+FROM ghcr.io/alexwithdev/devcontainer-template/ubuntu:latest
 
 # 以 root 身份执行系统级操作
 USER root
 
-# 更新包列表并安装必要的软件
+# 设置参数
+ARG USER_NAME=developer
+ARG USER_HOME=/home/${USER_NAME}
+
+# 更新包列表并安装桌面和输入法相关软件
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     tigervnc-standalone-server \
     tigervnc-tools \
     fluxbox \
     xterm \
-    wget \
-    curl \
     libfuse2 \
     net-tools \
-    ca-certificates \
     unzip \
     moreutils \
-    ibus \               
-    ibus-libpinyin \          
-    language-pack-zh-hans \   
-    dbus-x11 \                  
-    fonts-noto-cjk fonts-noto-cjk-extra \
-    nano \
+    ibus \
+    ibus-libpinyin \
+    language-pack-zh-hans \
+    dbus-x11 \
+    fonts-noto-cjk \
+    fonts-noto-cjk-extra \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# 设置参数
-# 定义用户名和家目录，方便引用
-ARG USER_NAME=developer
-ARG USER_HOME=/home/${USER_NAME}
-# 固定 UID/GID 为 1000，这是许多基础镜像中第一个非 root 用户的常见选择
-ARG USER_UID=1000
-ARG USER_GID=1000
-
-# 设置环境变量
-ENV DEBIAN_FRONTEND=noninteractive \
-    # 将 USER 和 HOME 设置为我们创建的非 root 用户
-    USER=${USER_NAME} \
+# 设置桌面会话环境变量
+ENV USER=${USER_NAME} \
     HOME=${USER_HOME} \
     DISPLAY=:1 \
     VNC_GEOMETRY=1920x1080 \
     VNC_DEPTH=24
 
 
-
-# 创建用户组和用户，并指定 UID/GID
-RUN groupadd --gid ${USER_GID} ${USER_NAME} && \
-    useradd --uid ${USER_UID} --gid ${USER_GID} --create-home --shell /bin/bash ${USER_NAME} && \
-    # 创建 VNC 配置目录并立即设置正确的所有权
-    mkdir -p ${USER_HOME}/.vnc && \
+# 创建 VNC 配置目录并立即设置正确的所有权
+RUN mkdir -p ${USER_HOME}/.vnc && \
     chown -R ${USER_NAME}:${USER_NAME} ${USER_HOME}
 
 RUN wget https://github.com/xexpanderx/Fluxbox-themes/archive/refs/heads/master.zip -O fluxbox-theme.zip  \ 
@@ -79,10 +66,7 @@ RUN chmod +x ${USER_HOME}/.vnc/xstartup && \
     chmod +x /entrypoint.sh
 
 # 配置输入法环境变量
-ENV LANG=zh_CN.UTF-8 \
-    LANGUAGE=zh_CN:zh \
-    LC_ALL=zh_CN.UTF-8 \
-    GTK_IM_MODULE=ibus \
+ENV GTK_IM_MODULE=ibus \
     XMODIFIERS=@im=ibus \
     QT_IM_MODULE=ibus
 
