@@ -12,8 +12,8 @@ session.screen0.toolbar.button.screenshot.label:	\357\200\260
 session.screen0.toolbar.button.screenshot.commands:	:Exec scrot -d 5 '%Y-%m-%d_$wx$h_scrot.png' -e 'mv $f ~/Downloads && notify-send -t 10 -i ~/.local/share/icons/Qogir-ubuntu-dark/16/devices/camera-photo.svg "Screenshot taken!"'
 session.screen0.toolbar.button.thunar.label:	\357\201\273 
 session.screen0.toolbar.button.thunar.commands:	:Exec thunar
-session.screen0.toolbar.button.urxvt.label:	\357\204\240  
-session.screen0.toolbar.button.urxvt.commands:	:Exec urxvt256c
+session.screen0.toolbar.button.terminal.label:	\357\204\240  
+session.screen0.toolbar.button.terminal.commands:	:Exec xfce4-terminal
 session.screen0.toolbar.button.google_chrome.label:	\357\211\250 
 session.screen0.toolbar.button.google_chrome.commands:	:Exec google-chrome-stable
 session.screen0.toolbar.button.rootmenu.label:	\357\203\211  
@@ -22,7 +22,7 @@ session.screen0.toolbar.autoHide:	false
 session.screen0.toolbar.layer:	Dock
 session.screen0.toolbar.maxOver:	false
 session.screen0.toolbar.placement:	BottomLeft
-session.screen0.toolbar.tools:	button.rootmenu,button.lock,button.screenshot,button.thunar,button.urxvt,iconbar,systemtray,prevworkspace,workspacename,nextworkspace
+session.screen0.toolbar.tools:	button.rootmenu,button.lock,button.screenshot,button.thunar,button.terminal,iconbar,systemtray,prevworkspace,workspacename,nextworkspace
 session.screen0.toolbar.onhead:	1
 session.screen0.toolbar.height:	0
 session.screen0.toolbar.autoRaise:	false

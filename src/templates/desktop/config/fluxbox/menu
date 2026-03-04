@@ -20,7 +20,7 @@
         [exec]   (➤ Run) {fbrun}
 	[separator]
 	    [exec] (⚫ Chrome) {google-chrome-stable}
-      	[exec] (⚫ Xterm) {xterm}
+      [exec] (⚫ XFCE Terminal) {xfce4-terminal}
      	[separator]
      	[exec] (❖ Steam) {steam}    	
 	[nop]

@@ -14,7 +14,7 @@ RUN apt-get update && \
     tigervnc-standalone-server \
     tigervnc-tools \
     fluxbox \
-    xterm \
+    xfce4-terminal \
     libfuse2 \
     net-tools \
     unzip \
