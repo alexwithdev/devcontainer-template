@@ -29,8 +29,8 @@ RUN wget -q $APPIMAGE_URL -O /tmp/android-studio.tar.gz \
     && chown -R $USER_NAME:$USER_NAME /opt/android-studio
 
 # Create Android Studio wrapper script
-RUN echo '#!/bin/bash\nexport JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64\nexport ANDROID_HOME=$HOME/Android/Sdk\nexport PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools\ncd /opt/android-studio/bin\n./studio.sh "$@"' > /usr/local/bin/android-studio \
-    && chmod +x /usr/local/bin/android-studio
+COPY scripts/android-studio /usr/local/bin/android-studio
+RUN chmod +x /usr/local/bin/android-studio
 
 # 暴露 VNC 端口
 EXPOSE 5901
