@@ -4,7 +4,10 @@
   "features": {},
   "remoteUser": "developer",
   "containerEnv": {
-    "VNC_PASSWORD": "password"
+    "VNC_PASSWORD": "password",
+    "KVM_GID": "1000", // 允许访问 KVM 设备, export KVM_GID="$(grep '^kvm:' /etc/group | cut -d: -f3)"
+    "VIDEO_GID": "1000", // 允许访问视频设备, export VIDEO_GID="$(grep '^video:' /etc/group | cut -d: -f3)"
+    "RENDER_GID": "1000" // 允许访问渲染设备, export RENDER_GID="$(grep '^render:' /etc/group | cut -d: -f3)"
   },
   "customizations": {
     "vscode": {
