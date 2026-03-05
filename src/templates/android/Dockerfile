@@ -5,12 +5,12 @@ FROM ghcr.io/alexwithdev/devcontainer-template/desktop:latest
 USER root
 
 # 更新包列表并安装必要的软件
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
     # Android studio 依赖
-    openjdk-11-jdk git && \ 
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    openjdk-11-jdk libpulse0 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # 设置参数
 ARG APPIMAGE_URL="https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2025.1.4.8/android-studio-2025.1.4.8-linux.tar.gz"
@@ -33,7 +33,12 @@ COPY scripts/android-studio /usr/local/bin/android-studio
 RUN chmod +x /usr/local/bin/android-studio \
     && mkdir -p /home/${USER_NAME}/Android \
     && mkdir -p /home/${USER_NAME}/.android \
-    && chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/Android /home/${USER_NAME}/.android
+    && mkdir -p /home/${USER_NAME}/Projects \
+    && mkdir -p /home/${USER_NAME}/.gradle \
+    && chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/Android \
+    /home/${USER_NAME}/.android \
+    /home/${USER_NAME}/Projects \
+    /home/${USER_NAME}/.gradle
 
 # 暴露 VNC 端口
 EXPOSE 5901
