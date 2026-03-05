@@ -20,6 +20,7 @@ jobs:
       lang-matrix: ${{ steps.set-matrix.outputs.lang-matrix }}
       build-base: ${{ steps.set-matrix.outputs.build-base }}
       build-ubuntu: ${{ steps.set-matrix.outputs.build-ubuntu }}
+      build-android: ${{ steps.set-matrix.outputs.build-android }}
     steps:
       - uses: actions/checkout@v4
 
@@ -78,6 +79,12 @@ jobs:
             BUILD_UBUNTU=false
           fi
 
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$UBUNTU_CHANGED" == "true" ]] || [[ "$ANDROID_CHANGED" == "true" ]]; then
+            BUILD_ANDROID=true
+          else
+            BUILD_ANDROID=false
+          fi
+
           # Generate base matrix
           if [[ "$BUILD_BASE" == "true" ]]; then
             BASE_MATRIX='{"include":[{"name":"base","dockerfile":"src/templates/base/Dockerfile","context":"src/templates/base","description":"Base Alpine development container"}]}'
@@ -111,10 +118,6 @@ jobs:
             LANG_ITEMS+=('{"name":"desktop","dockerfile":"src/templates/desktop/Dockerfile","context":"src/templates/desktop","description":"Desktop development container with VNC"}')
           fi
 
-          if [[ "$BUILD_ALL" == "true" ]] || [[ "$UBUNTU_CHANGED" == "true" ]] || [[ "$ANDROID_CHANGED" == "true" ]]; then
-            LANG_ITEMS+=('{"name":"android","dockerfile":"src/templates/android/Dockerfile","context":"src/templates/android","description":"Android development container with Android Studio"}')
-          fi
-
           # Build language matrix JSON
           if [ ${#LANG_ITEMS[@]} -eq 0 ]; then
             LANG_MATRIX='{"include":[]}'
@@ -130,6 +133,7 @@ jobs:
           echo "lang-matrix=$LANG_MATRIX" >> $GITHUB_OUTPUT
           echo "build-base=$BUILD_BASE" >> $GITHUB_OUTPUT
           echo "build-ubuntu=$BUILD_UBUNTU" >> $GITHUB_OUTPUT
+          echo "build-android=$BUILD_ANDROID" >> $GITHUB_OUTPUT
 
           # Debug output
           echo "::notice::Base Matrix: $BASE_MATRIX"
@@ -137,6 +141,7 @@ jobs:
           echo "::notice::Lang Matrix: $LANG_MATRIX"
           echo "::notice::Build Base: $BUILD_BASE"
           echo "::notice::Build Ubuntu: $BUILD_UBUNTU"
+          echo "::notice::Build Android: $BUILD_ANDROID"
 
   build-base:
     needs: detect-changes
@@ -173,6 +178,27 @@ jobs:
       dockerfile: ${{ matrix.dockerfile }}
       context: ${{ matrix.context }}
       description: ${{ matrix.description }}
+      registry: ghcr.io
+      image_name: ${{ github.repository }}
+
+  build-android:
+    needs: [detect-changes, build-ubuntu, build-and-push]
+    if: |
+      always() &&
+      needs.detect-changes.result == 'success' &&
+      (needs.build-ubuntu.result == 'success' || needs.build-ubuntu.result == 'skipped') &&
+      needs.detect-changes.outputs.build-android == 'true'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    uses: ./.github/workflows/build-image.yml
+    with:
+      name: android
+      dockerfile: src/templates/android/Dockerfile
+      context: src/templates/android
+      description: Android development container with Android Studio
       registry: ghcr.io
       image_name: ${{ github.repository }}
 
