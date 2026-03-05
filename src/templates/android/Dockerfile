@@ -30,7 +30,10 @@ RUN wget -q $APPIMAGE_URL -O /tmp/android-studio.tar.gz \
 
 # Create Android Studio wrapper script
 COPY scripts/android-studio /usr/local/bin/android-studio
-RUN chmod +x /usr/local/bin/android-studio
+RUN chmod +x /usr/local/bin/android-studio \
+    && mkdir -p /home/${USER_NAME}/Android && \
+    && mkdir -p /home/${USER_NAME}/.android && \
+    && chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/Android /home/${USER_NAME}/.android
 
 # 暴露 VNC 端口
 EXPOSE 5901
