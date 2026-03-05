@@ -4,5 +4,13 @@
   "editor.formatOnSave": true,
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+  },
+  "files.associations": {
+    "devcontainer.prebuilt.json": "jsonc"
+  },
+  "chat.tools.terminal.autoApprove": {
+    "set": true,
+    "mkdir": true,
+    "mv": true
   }
 }
