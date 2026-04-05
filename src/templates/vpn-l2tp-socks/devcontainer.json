@@ -1,0 +1,26 @@
+// L2TP + SOCKS5 template (without modifying base template files)
+{
+  "name": "VPN L2TP + SOCKS5",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--device=/dev/ppp",
+    "--sysctl",
+    "net.ipv4.ip_forward=1"
+  ],
+  "remoteUser": "developer",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/zsh"
+      }
+    }
+  }
+}

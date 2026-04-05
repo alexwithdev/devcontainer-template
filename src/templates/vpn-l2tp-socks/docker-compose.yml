@@ -1,0 +1,22 @@
+services:
+  vpn-socks:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vpn-socks
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/ppp:/dev/ppp
+    sysctls:
+      net.ipv4.ip_forward: "1"
+    environment:
+      VPN_SERVER: ${VPN_SERVER}
+      VPN_USER: ${VPN_USER}
+      VPN_PASSWORD: ${VPN_PASSWORD}
+      VPN_ENABLE_IPSEC: "false"
+      SOCKS_PORT: "1080"
+      VPN_ROUTE_CIDRS: ${VPN_ROUTE_CIDRS:-}
+    ports:
+      - "3080:1080"
+    restart: no
