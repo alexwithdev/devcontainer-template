@@ -13,7 +13,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # 设置参数
-ARG APPIMAGE_URL="https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2025.1.4.8/android-studio-2025.1.4.8-linux.tar.gz"
+ARG APPIMAGE_URL="https://edgedl.me.gvt1.com/android/studio/ide-zips/2025.3.2.6/android-studio-panda2-linux.tar.gz"
 # 定义用户名和家目录，方便引用
 ARG USER_NAME=developer
 ARG USER_HOME=/home/${USER_NAME}

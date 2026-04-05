@@ -3,10 +3,7 @@
 {
   "name": "DevContainer Template - Default",
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "build": {
-    // Path is relative to the devcontainer.json file.
-    "dockerfile": "Dockerfile"
-  },
+  "image": "ghcr.io/alexwithdev/devcontainer-template/base:latest",
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {},
   "runArgs": [],
