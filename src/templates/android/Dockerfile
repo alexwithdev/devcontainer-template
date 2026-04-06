@@ -7,13 +7,21 @@ USER root
 # 更新包列表并安装必要的软件
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    # Android studio 依赖
-    openjdk-11-jdk libpulse0 \
+    # Java 运行时（Gradle 8.x / AGP 8.x 要求 JDK 17+）
+    openjdk-17-jdk \
+    # Android Studio 音频依赖
+    libpulse0 \
+    # Vulkan / ANGLE GPU 加速
+    libvulkan1 mesa-vulkan-drivers libgles2 libegl1 mesa-utils \
+    # 模拟器 X11 扩展依赖
+    libxtst6 libxrender1 libxi6 libxext6 \
+    # 模拟器其他运行时依赖
+    libpci3 libsdl2-2.0-0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # 设置参数
-ARG APPIMAGE_URL="https://edgedl.me.gvt1.com/android/studio/ide-zips/2025.3.2.6/android-studio-panda2-linux.tar.gz"
+ARG ANDROID_STUDIO_URL="https://edgedl.me.gvt1.com/android/studio/ide-zips/2025.3.3.6/android-studio-panda3-linux.tar.gz"
 # 定义用户名和家目录，方便引用
 ARG USER_NAME=developer
 ARG USER_HOME=/home/${USER_NAME}
@@ -23,7 +31,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # 下载并设置所有权和权限
 # 注意：这里仍然以 root 身份下载和设置权限，确保文件能正确放置
-RUN wget -q $APPIMAGE_URL -O /tmp/android-studio.tar.gz \
+RUN wget -q $ANDROID_STUDIO_URL -O /tmp/android-studio.tar.gz \
     && tar -xzf /tmp/android-studio.tar.gz -C /opt/ \
     && rm /tmp/android-studio.tar.gz \
     && chown -R $USER_NAME:$USER_NAME /opt/android-studio

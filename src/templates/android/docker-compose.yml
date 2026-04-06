@@ -1,0 +1,86 @@
+services:
+  android-studio:
+    # image: ghcr.io/alexwithdev/devcontainer-template/android:latest
+    # 如需从本地 Dockerfile 构建，取消注释以下两行并注释上面的 image 行：
+    build:
+      context: .
+    container_name: android-studio
+
+    # ─── 以非 root 的 developer 用户运行 ───────────────────────────────────────
+    user: developer
+    # group_add 将宿主机 GID 注入为进程的补充组（supplementary groups）。
+    # 内核在检查 /dev/kvm、/dev/dri 设备权限时会查补充组，无需 root。
+    # 宿主机执行以下命令获取各 GID：
+    #   KVM_GID    -> grep '^kvm:'    /etc/group | cut -d: -f3
+    #   RENDER_GID -> grep '^render:' /etc/group | cut -d: -f3
+    #   VIDEO_GID  -> grep '^video:'  /etc/group | cut -d: -f3
+    group_add:
+      - "${KVM_GID}"
+      - "${RENDER_GID}"
+      - "${VIDEO_GID}"
+
+    # ─── 设备访问 ────────────────────────────────────────────────────────────
+    devices:
+      - /dev/kvm:/dev/kvm # KVM 硬件虚拟化（x86_64 AVD 必须）
+      - /dev/dri:/dev/dri # DRM/DRI 渲染节点（包含 renderD128）
+
+    # ─── NVIDIA GPU（nvidia-container-toolkit）──────────────────────────────
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities:
+                - gpu # 通用 CUDA/图形
+                - graphics # OpenGL / Vulkan
+                - compute # 计算
+                - utility # nvidia-smi 等工具
+                - video # 硬件视频编解码
+
+    # ─── 环境变量 ────────────────────────────────────────────────────────────
+    environment:
+      VNC_PASSWORD: "${VNC_PASSWORD}"
+      # NVIDIA 驱动能力全开
+      NVIDIA_VISIBLE_DEVICES: "all"
+      NVIDIA_DRIVER_CAPABILITIES: "all"
+      # VNC 显示（由 desktop 基础镜像 entrypoint 创建 :1）
+      DISPLAY: ":1"
+      # 让模拟器优先使用系统 Vulkan ICD（NVIDIA），而非模拟器内置实现。
+      # emulator 36.x 使用 gfxstream + host Vulkan 直通模式（angle_indirect 已在 36.x 中移除）。
+      # 启动模拟器请使用：emulator -avd <NAME> -gpu host
+      ANDROID_EMULATOR_USE_SYSTEM_LIBS: "1"
+      # 启用 gfxstream DMA 传输，减少 host Vulkan 模式下的 GPU 缓冲区拷贝开销
+      ANDROID_EMU_ENABLE_GLDMA: "1"
+      # ── NVIDIA PRIME Render Offload（Optimus 笔记本必须设置）─────────────────
+      # 宿主机 XWayland 由 Intel iGPU 驱动，容器内不设置则 GLVND 回退 Mesa → llvmpipe。
+      # 这三个变量通过 GLVND 强制将所有 OpenGL/EGL 调用路由到 NVIDIA 独立显卡，
+      # 与在宿主机执行 __NV_PRIME_RENDER_OFFLOAD=1 app 效果完全一致。
+      __NV_PRIME_RENDER_OFFLOAD: "1"
+      __NV_PRIME_RENDER_OFFLOAD_PROVIDER: "NVIDIA-G0"
+      __GLX_VENDOR_LIBRARY_NAME: "nvidia"
+
+    # ─── 端口映射 ────────────────────────────────────────────────────────────
+    ports:
+      - "127.0.0.1:5913:5901" # TigerVNC（使用 VNC Viewer 连接）
+      # - "5554:5554"   # Android 模拟器控制台
+      # - "5555:5555"   # ADB over TCP（宿主机执行 adb connect localhost:5555）
+
+    # ─── 持久化存储 ──────────────────────────────────────────────────────────
+    volumes:
+      # 共享host的时间环境
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - $HOME/code/Android/container:/home/developer/AndroidProjects
+      - $HOME/.docker/container-volumes/Android/Sdk:/home/developer/Android/Sdk
+      - $HOME/.docker/container-volumes/.android/avd:/home/developer/.android/avd
+
+    # ─── 内存与安全配置 ──────────────────────────────────────────────────────
+    # 模拟器使用大量共享内存，2 GB 是稳定运行的最低建议值
+    shm_size: "2gb"
+    cap_add:
+      - SYS_PTRACE # KVM ioctl 及 QEMU/模拟器内部调试追踪所需
+    security_opt:
+      - seccomp:unconfined # 允许模拟器使用的 KVM 相关 syscall
+
+    restart: no

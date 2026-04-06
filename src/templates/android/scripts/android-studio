@@ -1,6 +1,39 @@
 #!/bin/bash
-export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 export ANDROID_HOME=$HOME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+
+# ── Emulator wrapper：强制 -gpu host -no-snapshot（冷启动）────────────────
+# Android Studio 启动 emulator 时不传 -gpu，但快照可能以错误 GPU 模式保存导致卡顿。
+# 此处确保每次 AS 启动前 wrapper 都处于最新状态。
+EMULATOR_DIR="$ANDROID_HOME/emulator"
+EMULATOR_REAL="$EMULATOR_DIR/emulator.real"
+EMULATOR_WRAPPER="$EMULATOR_DIR/emulator"
+
+if [ -f "$EMULATOR_WRAPPER" ] && [ "$(head -c 2 "$EMULATOR_WRAPPER")" != "#!" ]; then
+    # emulator 开头不是 #!（shebang），说明是真实 binary（首次部署或 SDK Manager 更新后）→ 更新 emulator.real 并写入 wrapper
+    mv "$EMULATOR_WRAPPER" "$EMULATOR_REAL"
+    cat > "$EMULATOR_WRAPPER" << 'EOF'
+#!/bin/bash
+ARGS=()
+skip_next=0
+for arg in "$@"; do
+    if [ "$skip_next" = "1" ]; then
+        skip_next=0
+        continue
+    fi
+    if [ "$arg" = "-gpu" ]; then
+        skip_next=1
+        continue
+    fi
+    ARGS+=("$arg")
+done
+
+exec "$(dirname "$0")/emulator.real" "${ARGS[@]}" -gpu host -no-snapshot
+EOF
+    chmod +x "$EMULATOR_WRAPPER"
+fi
+# ─────────────────────────────────────────────────────────────────────────────
+
 cd /opt/android-studio/bin
 ./studio "$@"
