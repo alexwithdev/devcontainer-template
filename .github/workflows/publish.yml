@@ -17,9 +17,11 @@ jobs:
     outputs:
       base-matrix: ${{ steps.set-matrix.outputs.base-matrix }}
       ubuntu-matrix: ${{ steps.set-matrix.outputs.ubuntu-matrix }}
+      desktop-matrix: ${{ steps.set-matrix.outputs.desktop-matrix }}
       lang-matrix: ${{ steps.set-matrix.outputs.lang-matrix }}
       build-base: ${{ steps.set-matrix.outputs.build-base }}
       build-ubuntu: ${{ steps.set-matrix.outputs.build-ubuntu }}
+      build-desktop: ${{ steps.set-matrix.outputs.build-desktop }}
       build-android: ${{ steps.set-matrix.outputs.build-android }}
       build-remaining: ${{ steps.set-matrix.outputs.build-remaining }}
     steps:
@@ -80,7 +82,13 @@ jobs:
             BUILD_UBUNTU=false
           fi
 
-          if [[ "$BUILD_ALL" == "true" ]] || [[ "$UBUNTU_CHANGED" == "true" ]] || [[ "$ANDROID_CHANGED" == "true" ]]; then
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$UBUNTU_CHANGED" == "true" ]] || [[ "$DESKTOP_CHANGED" == "true" ]]; then
+            BUILD_DESKTOP=true
+          else
+            BUILD_DESKTOP=false
+          fi
+
+          if [[ "$BUILD_ALL" == "true" ]] || [[ "$UBUNTU_CHANGED" == "true" ]] || [[ "$ANDROID_CHANGED" == "true" ]] || [[ "$DESKTOP_CHANGED" == "true" ]]; then
             BUILD_ANDROID=true
           else
             BUILD_ANDROID=false
@@ -100,6 +108,13 @@ jobs:
             UBUNTU_MATRIX='{"include":[]}'
           fi
 
+          # Generate desktop matrix
+          if [[ "$BUILD_DESKTOP" == "true" ]]; then
+            DESKTOP_MATRIX='{"include":[{"name":"desktop","dockerfile":"src/templates/desktop/Dockerfile","context":"src/templates/desktop","description":"Desktop development container with VNC"}]}'
+          else
+            DESKTOP_MATRIX='{"include":[]}'
+          fi
+
           # Generate language matrix
           LANG_ITEMS=()
 
@@ -113,10 +128,6 @@ jobs:
 
           if [[ "$BUILD_ALL" == "true" ]] || [[ "$BASE_CHANGED" == "true" ]] || [[ "$GO_CHANGED" == "true" ]]; then
             LANG_ITEMS+=('{"name":"go","dockerfile":"src/templates/go/Dockerfile","context":"src/templates/go","description":"Go development container"}')
-          fi
-
-          if [[ "$BUILD_ALL" == "true" ]] || [[ "$UBUNTU_CHANGED" == "true" ]] || [[ "$DESKTOP_CHANGED" == "true" ]]; then
-            LANG_ITEMS+=('{"name":"desktop","dockerfile":"src/templates/desktop/Dockerfile","context":"src/templates/desktop","description":"Desktop development container with VNC"}')
           fi
 
           # Build language matrix JSON
@@ -133,18 +144,22 @@ jobs:
           # Set outputs
           echo "base-matrix=$BASE_MATRIX" >> $GITHUB_OUTPUT
           echo "ubuntu-matrix=$UBUNTU_MATRIX" >> $GITHUB_OUTPUT
+          echo "desktop-matrix=$DESKTOP_MATRIX" >> $GITHUB_OUTPUT
           echo "lang-matrix=$LANG_MATRIX" >> $GITHUB_OUTPUT
           echo "build-base=$BUILD_BASE" >> $GITHUB_OUTPUT
           echo "build-ubuntu=$BUILD_UBUNTU" >> $GITHUB_OUTPUT
+          echo "build-desktop=$BUILD_DESKTOP" >> $GITHUB_OUTPUT
           echo "build-android=$BUILD_ANDROID" >> $GITHUB_OUTPUT
           echo "build-remaining=$BUILD_REMAINING" >> $GITHUB_OUTPUT
 
           # Debug output
           echo "::notice::Base Matrix: $BASE_MATRIX"
           echo "::notice::Ubuntu Matrix: $UBUNTU_MATRIX"
+          echo "::notice::Desktop Matrix: $DESKTOP_MATRIX"
           echo "::notice::Lang Matrix: $LANG_MATRIX"
           echo "::notice::Build Base: $BUILD_BASE"
           echo "::notice::Build Ubuntu: $BUILD_UBUNTU"
+          echo "::notice::Build Desktop: $BUILD_DESKTOP"
           echo "::notice::Build Android: $BUILD_ANDROID"
           echo "::notice::Build Remaining: $BUILD_REMAINING"
 
@@ -186,17 +201,41 @@ jobs:
       registry: ghcr.io
       image_name: ${{ github.repository }}
 
+  build-and-publish-desktop:
+    needs: [detect-changes, build-and-publish-ubuntu]
+    if: |
+      always() &&
+      needs.detect-changes.result == 'success' &&
+      (needs.build-and-publish-ubuntu.result == 'success' || needs.build-and-publish-ubuntu.result == 'skipped') &&
+      needs.detect-changes.outputs.build-desktop == 'true'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    strategy:
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.desktop-matrix) }}
+    uses: ./.github/workflows/build-and-publish-image.yml
+    with:
+      name: ${{ matrix.name }}
+      dockerfile: ${{ matrix.dockerfile }}
+      context: ${{ matrix.context }}
+      description: ${{ matrix.description }}
+      registry: ghcr.io
+      image_name: ${{ github.repository }}
+
   build-and-publish-android:
     needs:
       [
         detect-changes,
         build-and-publish-ubuntu,
-        build-and-publish-remaining-images,
+        build-and-publish-desktop,
       ]
     if: |
       always() &&
       needs.detect-changes.result == 'success' &&
       (needs.build-and-publish-ubuntu.result == 'success' || needs.build-and-publish-ubuntu.result == 'skipped') &&
+      (needs.build-and-publish-desktop.result == 'success' || needs.build-and-publish-desktop.result == 'skipped') &&
       needs.detect-changes.outputs.build-android == 'true'
     permissions:
       contents: read
