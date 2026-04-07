@@ -12,6 +12,11 @@ export XKL_XMODMAP_DISABLE=1
 export XDG_CURRENT_DESKTOP="Fluxbox"
 export XDG_SESSION_TYPE=x11
 
+# 继承入口脚本生成的 keyring/dbus 环境，供桌面应用访问 Secret Service。
+if [ -f "${HOME}/.cache/keyring-env" ]; then
+  . "${HOME}/.cache/keyring-env"
+fi
+
 ibus-daemon -d -x &   # 启动ibus后台服务
 
 # 启动 Fluxbox 窗口管理器 (在后台运行)

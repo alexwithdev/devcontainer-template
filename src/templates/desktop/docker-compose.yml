@@ -1,0 +1,30 @@
+services:
+  desktop:
+    # image: ghcr.io/alexwithdev/devcontainer-template/desktop:latest
+    # 如需从本地 Dockerfile 构建，取消注释以下两行并注释上面的 image 行：
+    build:
+      context: .
+    container_name: desktop
+
+    # ─── 以非 root 的 developer 用户运行 ───────────────────────────────────────
+    user: developer
+
+    # ─── 环境变量 ────────────────────────────────────────────────────────────
+    environment:
+      VNC_PASSWORD: "${VNC_PASSWORD}"
+      KEYRING_AUTOUNLOCK: "true"
+      KEYRING_PASSWORD: "${KEYRING_PASSWORD}"
+
+    # ─── 端口映射 ────────────────────────────────────────────────────────────
+    ports:
+      - "127.0.0.1:5911:5901" # TigerVNC（使用 VNC Viewer 连接）
+      # - "5554:5554"   # Android 模拟器控制台
+      # - "5555:5555"   # ADB over TCP（宿主机执行 adb connect localhost:5555）
+
+    # ─── 持久化存储 ──────────────────────────────────────────────────────────
+    volumes:
+      # 共享host的时间环境
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
+    restart: no

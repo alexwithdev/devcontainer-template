@@ -1,12 +1,38 @@
 #!/bin/bash
 set -e # 如果任何命令失败，则退出脚本
 
+KEYRING_ENV_FILE="${HOME}/.cache/keyring-env"
+
 # VNC 密码从环境变量 VNC_PASSWORD 获取
 if [ -z "${VNC_PASSWORD}" ]; then
   echo "错误：环境变量 VNC_PASSWORD 未设置。"
   echo "请在运行容器时使用 -e VNC_PASSWORD=yourpassword 来设置密码。"
   exit 1
 fi
+
+mkdir -p "${HOME}/.cache"
+
+# 启动用户级 D-Bus 会话，供 libsecret/keyring 使用。
+if [ -z "${DBUS_SESSION_BUS_ADDRESS}" ]; then
+  eval "$(dbus-launch --sh-syntax)"
+fi
+
+# 启动/解锁 gnome-keyring 并导出会话变量。
+if [ "${KEYRING_AUTOUNLOCK:-true}" = "true" ] && [ -n "${KEYRING_PASSWORD}" ]; then
+  KEYRING_OUTPUT="$(printf '%s' "${KEYRING_PASSWORD}" | gnome-keyring-daemon --unlock --components=secrets,ssh)"
+  eval "${KEYRING_OUTPUT}"
+else
+  KEYRING_OUTPUT="$(gnome-keyring-daemon --start --components=secrets,ssh)"
+  eval "${KEYRING_OUTPUT}"
+fi
+
+cat > "${KEYRING_ENV_FILE}" <<EOF
+export DBUS_SESSION_BUS_ADDRESS='${DBUS_SESSION_BUS_ADDRESS}'
+export GNOME_KEYRING_CONTROL='${GNOME_KEYRING_CONTROL}'
+export SSH_AUTH_SOCK='${SSH_AUTH_SOCK}'
+EOF
+chmod 600 "${KEYRING_ENV_FILE}"
+unset KEYRING_PASSWORD
 
 # --- 修改开始 ---
 # 显式指定 vncpasswd 的完整路径

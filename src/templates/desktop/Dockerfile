@@ -23,6 +23,9 @@ RUN apt-get update && \
     ibus-libpinyin \
     language-pack-zh-hans \
     dbus-x11 \
+    gnome-keyring \
+    libsecret-1-0 \
+    libsecret-tools \
     fonts-noto-cjk \
     fonts-noto-cjk-extra \
     && apt-get clean && \
@@ -63,7 +66,8 @@ COPY --chown=${USER_NAME}:${USER_NAME} config/xstartup ${USER_HOME}/.vnc/xstartu
 # 复制入口点脚本，它将被非 root 用户执行，所以放在根目录或其他地方都可以
 COPY config/entrypoint.sh /entrypoint.sh
 RUN chmod +x ${USER_HOME}/.vnc/xstartup && \
-    chmod +x /entrypoint.sh
+    chmod +x /entrypoint.sh && \
+    grep -q 'keyring-env' ${USER_HOME}/.zshrc || echo '[ -f "$HOME/.cache/keyring-env" ] && . "$HOME/.cache/keyring-env"' >> ${USER_HOME}/.zshrc
 
 # 配置输入法环境变量
 ENV GTK_IM_MODULE=ibus \
