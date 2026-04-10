@@ -28,7 +28,8 @@ RUN apt-get update && \
     libsecret-tools \
     fonts-noto-cjk \
     fonts-noto-cjk-extra \
-    && apt-get clean && \
+    xclip && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # 设置桌面会话环境变量
