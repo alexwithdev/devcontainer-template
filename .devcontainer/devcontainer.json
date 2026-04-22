@@ -6,11 +6,11 @@
   "image": "ghcr.io/alexwithdev/devcontainer-template/base:latest",
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {},
-  "runArgs": [],
+  "runArgs": ["--network=mine-mcp"],
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
   // Use 'postCreateCommand' to run commands after the container is created.
-  // "postCreateCommand": "yarn install",
+  "postStartCommand": "socat TCP-LISTEN:8280,fork TCP:mcp:9090",
   // Configure tool-specific properties.
   // "customizations": {},
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
