@@ -46,7 +46,10 @@ RUN chmod +x /usr/local/bin/android-studio \
     && chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/Android \
     /home/${USER_NAME}/.android \
     /home/${USER_NAME}/Projects \
-    /home/${USER_NAME}/.gradle
+    /home/${USER_NAME}/.gradle && \
+    echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> /home/${USER_NAME}/.zshrc && \
+    echo 'export ANDROID_HOME=$HOME/Android/Sdk' >> /home/${USER_NAME}/.zshrc && \
+    echo 'export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools' >> /home/${USER_NAME}/.zshrc
 
 # 暴露 VNC 端口
 EXPOSE 5901
