@@ -17,7 +17,15 @@ if [ -f "${HOME}/.cache/keyring-env" ]; then
   . "${HOME}/.cache/keyring-env"
 fi
 
+# 加载 Xresources（固定 Xft.dpi=96，消除候选窗位置偏移）
+[ -f "${HOME}/.Xresources" ] && xrdb -merge "${HOME}/.Xresources"
+
+# 先启动 xsettingsd，为 GTK 应用（含 IBus 候选窗）提供深色主题
+xsettingsd &
+sleep 0.3
+
 ibus-daemon -d -x &   # 启动ibus后台服务
+sleep 0.5
 
 # 启动 Fluxbox 窗口管理器 (在后台运行)
 fluxbox &

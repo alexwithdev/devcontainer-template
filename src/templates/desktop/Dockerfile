@@ -28,7 +28,12 @@ RUN apt-get update && \
     libsecret-tools \
     fonts-noto-cjk \
     fonts-noto-cjk-extra \
-    xclip && \
+    xclip \
+    ibus-gtk \
+    ibus-gtk3 \
+    im-config \
+    xsettingsd \
+    x11-xserver-utils && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -64,6 +69,10 @@ COPY --chown=${USER_NAME}:${USER_NAME} config/fluxbox/menu ${USER_HOME}/.fluxbox
 COPY --chown=${USER_NAME}:${USER_NAME} config/fluxbox/overlay ${USER_HOME}/.fluxbox/overlay
 # 复制 VNC 启动脚本 (xstartup) 并设置所有权和权限
 COPY --chown=${USER_NAME}:${USER_NAME} config/xstartup ${USER_HOME}/.vnc/xstartup
+# 复制输入法和 GTK 主题相关配置
+COPY --chown=${USER_NAME}:${USER_NAME} config/xsettingsd/xsettingsd.conf ${USER_HOME}/.config/xsettingsd/xsettingsd.conf
+COPY --chown=${USER_NAME}:${USER_NAME} config/gtk-3.0/settings.ini ${USER_HOME}/.config/gtk-3.0/settings.ini
+COPY --chown=${USER_NAME}:${USER_NAME} config/Xresources ${USER_HOME}/.Xresources
 # 复制入口点脚本，它将被非 root 用户执行，所以放在根目录或其他地方都可以
 COPY config/entrypoint.sh /entrypoint.sh
 RUN chmod +x ${USER_HOME}/.vnc/xstartup && \
@@ -73,7 +82,10 @@ RUN chmod +x ${USER_HOME}/.vnc/xstartup && \
 # 配置输入法环境变量
 ENV GTK_IM_MODULE=ibus \
     XMODIFIERS=@im=ibus \
-    QT_IM_MODULE=ibus
+    QT_IM_MODULE=ibus \
+    GDK_SCALE=1 \
+    GDK_DPI_SCALE=1 \
+    QT_SCALE_FACTOR=1
 
 # 暴露 VNC 端口
 EXPOSE 5901
