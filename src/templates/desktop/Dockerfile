@@ -34,6 +34,7 @@ RUN apt-get update && \
     im-config \
     xsettingsd \
     x11-xserver-utils && \
+    fonts-noto-color-emoji && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -78,6 +79,9 @@ COPY config/entrypoint.sh /entrypoint.sh
 RUN chmod +x ${USER_HOME}/.vnc/xstartup && \
     chmod +x /entrypoint.sh && \
     grep -q 'keyring-env' ${USER_HOME}/.zshrc || echo '[ -f "$HOME/.cache/keyring-env" ] && . "$HOME/.cache/keyring-env"' >> ${USER_HOME}/.zshrc
+
+# 刷新字体缓存以确保新安装的字体可用
+RUN fc-cache -fv
 
 # 配置输入法环境变量
 ENV GTK_IM_MODULE=ibus \
