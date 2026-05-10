@@ -62,6 +62,10 @@ RUN wget https://github.com/ohmyzsh/ohmyzsh/raw/master/tools/install.sh && \
     echo "source \$ZSH/oh-my-zsh.sh" >> /home/${USERNAME}/.zshrc && \
     rm install.sh
 
+# 设置默认终端为zsh
+# RUN chsh -s $(which zsh)
+ENV SHELL=/bin/zsh
+
 RUN git config --global init.defaultBranch main && \
     git config --global color.ui auto && \
     git config --global core.autocrlf input && \
