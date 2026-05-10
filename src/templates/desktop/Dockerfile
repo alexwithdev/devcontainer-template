@@ -33,7 +33,7 @@ RUN apt-get update && \
     ibus-gtk3 \
     im-config \
     xsettingsd \
-    x11-xserver-utils && \
+    x11-xserver-utils \
     fonts-noto-color-emoji && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
