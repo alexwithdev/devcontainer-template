@@ -1,5 +1,5 @@
 # 多阶段构建 - 第一阶段从node:alpine提取Node.js
-FROM node:22.21.1-alpine AS node-source
+FROM node:10.24.1-alpine3.11 AS node-source
 
 # 第二阶段 - 使用自定义基础镜像
 FROM ghcr.io/alexwithdev/devcontainer-template/base:latest
@@ -43,13 +43,6 @@ USER ${USERNAME}
 # 配置npm使用用户目录
 ENV NPM_CONFIG_PREFIX=/home/${USERNAME}/.npm-global
 ENV PATH="/home/${USERNAME}/.npm-global/bin:${PATH}"
-
-# 全局安装pnpm
-RUN npm i -g pnpm
-
-# 配置pnpm store目录
-RUN mkdir -p /home/${USERNAME}/.pnpm-store && \
-  pnpm config set store-dir /home/${USERNAME}/.pnpm-store
 
 ENV ZSH_PLUGINS_APPEND="node npm"
 
