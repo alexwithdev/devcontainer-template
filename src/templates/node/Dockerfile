@@ -45,7 +45,7 @@ ENV NPM_CONFIG_PREFIX=/home/${USERNAME}/.npm-global
 ENV PATH="/home/${USERNAME}/.npm-global/bin:${PATH}"
 
 # 全局安装pnpm
-RUN npm i -g pnpm
+RUN npm i -g pnpm@^10
 
 # 配置pnpm store目录
 RUN mkdir -p /home/${USERNAME}/.pnpm-store && \
