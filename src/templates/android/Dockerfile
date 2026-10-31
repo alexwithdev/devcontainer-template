@@ -31,10 +31,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # 下载并设置所有权和权限
 # 注意：这里仍然以 root 身份下载和设置权限，确保文件能正确放置
-RUN wget -q $ANDROID_STUDIO_URL -O /tmp/android-studio.tar.gz \
-    && tar -xzf /tmp/android-studio.tar.gz -C /opt/ \
-    && rm /tmp/android-studio.tar.gz \
-    && chown -R $USER_NAME:$USER_NAME /opt/android-studio
+# RUN wget -q $ANDROID_STUDIO_URL -O /tmp/android-studio.tar.gz \
+#     && tar -xzf /tmp/android-studio.tar.gz -C /opt/ \
+#     && rm /tmp/android-studio.tar.gz \
+#     && chown -R $USER_NAME:$USER_NAME /opt/android-studio
 
 # Create Android Studio wrapper script
 COPY scripts/android-studio /usr/local/bin/android-studio
