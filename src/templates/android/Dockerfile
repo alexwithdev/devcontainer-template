@@ -1,5 +1,5 @@
 # 使用 Ubuntu LTS 版本作为基础镜像
-FROM ghcr.io/alexwithdev/devcontainer-template/desktop:latest
+FROM ghcr.io/alexwithdev/devcontainer-template/desktop:main
 
 # 以 root 身份执行系统级操作
 USER root

@@ -1,0 +1,5 @@
+name: 'Emudhra Test'
+description: 'Check Node.js CA trust store'
+runs:
+  using: 'node24'
+  main: 'emudhra.test.js'

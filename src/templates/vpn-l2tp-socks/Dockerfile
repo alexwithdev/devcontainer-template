@@ -1,4 +1,4 @@
-FROM ghcr.io/alexwithdev/devcontainer-template/base:latest
+FROM ghcr.io/alexwithdev/devcontainer-template/base:main
 
 USER root
 

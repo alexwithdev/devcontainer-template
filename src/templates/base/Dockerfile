@@ -1,5 +1,5 @@
 # 使用官方 alpine 镜像作为基础镜像
-FROM alpine:3.22.1
+FROM alpine:3.24.3
 
 # 设置用户ID和组ID环境变量
 ARG USER_UID=1000
@@ -17,7 +17,8 @@ RUN apk add --no-cache \
   htop strace curl wget neovim nano \
   tzdata ca-certificates openssh-client openssl \
   socat \
-  imagemagick
+  imagemagick \
+  ca-certificates
 
 # 创建非root用户
 RUN addgroup -g ${USER_GID} ${USERNAME} && \
@@ -33,9 +34,15 @@ RUN chmod +x /usr/local/bin/default-text-editor
 ENV VISUAL=default-text-editor
 ENV EDITOR=default-text-editor
 
+COPY scripts/emudhra.test.sh /tmp/emudhra.test.sh
+RUN chmod +x /tmp/emudhra.test.sh 
+
 # 切换到非root用户
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
+
+# eMudhra fix
+RUN /tmp/emudhra.test.sh
 
 ENV ZSH_PLUGIN_LIST="git"
 

@@ -1,5 +1,5 @@
 # 基于 Ubuntu 基础模板
-FROM ghcr.io/alexwithdev/devcontainer-template/ubuntu:latest
+FROM ghcr.io/alexwithdev/devcontainer-template/ubuntu:main
 
 # 以 root 身份执行系统级操作
 USER root

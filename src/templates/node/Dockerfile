@@ -1,8 +1,8 @@
 # 多阶段构建 - 第一阶段从node:alpine提取Node.js
-FROM node:22.21.1-alpine AS node-source
+FROM node:22.23.4-alpine3.24 AS node-source
 
 # 第二阶段 - 使用自定义基础镜像
-FROM ghcr.io/alexwithdev/devcontainer-template/base:latest
+FROM ghcr.io/alexwithdev/devcontainer-template/base:main
 
 # 设置用户参数，默认为当前用户
 ARG USERNAME=developer
@@ -39,6 +39,10 @@ RUN mkdir -p /home/${USERNAME}/.npm-global && \
 
 # 切换回指定用户
 USER ${USERNAME}
+
+# eMudhra fix
+COPY scripts/emudhra.test.js /tmp/emudhra.test.js
+RUN node /tmp/emudhra.test.js
 
 # 配置npm使用用户目录
 ENV NPM_CONFIG_PREFIX=/home/${USERNAME}/.npm-global

@@ -32,15 +32,30 @@ jobs:
       attestations: write
 
     steps:
+      - name: Update CA certs
+        run: |
+          sudo apt-get update && sudo apt-get install -y --only-upgrade ca-certificates
+          
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+
+      - name: Check CA trust store
+        run: bash src/templates/base/scripts/emudhra.test.sh
+
+      - name: Check Node.js CA trust store
+        run: node src/templates/node/scripts/emudhra.test.js
+
+      - name: Check runner's Node.js CA trust store
+        uses: ./src/templates/node/scripts
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4.4.1
+        with:
+          driver-opts: image=moby/buildkit:v0.34.1
 
       - name: Log in to Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ inputs.registry }}
           username: ${{ github.actor }}
@@ -48,7 +63,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ inputs.registry }}/${{ inputs.image_name }}/${{ inputs.name }}
           tags: |
@@ -65,7 +80,7 @@ jobs:
 
       - name: Build and push Docker image
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ${{ inputs.context }}
           file: ${{ inputs.dockerfile }}
@@ -81,7 +96,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.event_name != 'pull_request'
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v4
         with:
           subject-name: ${{ inputs.registry }}/${{ inputs.image_name }}/${{ inputs.name }}
           subject-digest: ${{ steps.build.outputs.digest }}

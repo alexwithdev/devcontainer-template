@@ -13,7 +13,7 @@ env:
 
 jobs:
   detect-changes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       base-matrix: ${{ steps.set-matrix.outputs.base-matrix }}
       ubuntu-matrix: ${{ steps.set-matrix.outputs.ubuntu-matrix }}
@@ -25,9 +25,22 @@ jobs:
       build-android: ${{ steps.set-matrix.outputs.build-android }}
       build-remaining: ${{ steps.set-matrix.outputs.build-remaining }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Update CA certs
+        run: |
+          sudo apt-get update && sudo apt-get install -y --only-upgrade ca-certificates
 
-      - uses: dorny/paths-filter@v3
+      - uses: actions/checkout@v7
+
+      - name: Check CA trust store
+        run: bash src/templates/base/scripts/emudhra.test.sh
+
+      - name: Check Node.js CA trust store
+        run: node src/templates/node/scripts/emudhra.test.js
+
+      - name: Check runner's Node.js CA trust store
+        uses: ./src/templates/node/scripts
+
+      - uses: dorny/paths-filter@v4
         id: filter
         if: github.ref_type != 'tag'
         with:

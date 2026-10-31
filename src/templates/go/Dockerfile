@@ -1,4 +1,4 @@
-FROM ghcr.io/alexwithdev/devcontainer-template/base:latest
+FROM ghcr.io/alexwithdev/devcontainer-template/base:main
 
 # 设置用户参数，默认为当前用户
 ARG USERNAME=developer
@@ -7,7 +7,7 @@ ARG USERNAME=developer
 USER root
 
 RUN apk add --no-cache \
-    go
+    'go>=1.26.10'
 
 # 切换回指定用户
 USER ${USERNAME}
